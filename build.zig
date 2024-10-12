@@ -52,8 +52,16 @@ pub fn build(b: *std.Build) void {
             lib.defineCMacro("__EMSCRIPTEN_PTHREADS__ ", "1");
             lib.defineCMacro("USE_SDL", "2");
             lib.addCSourceFiles(.{ .files = &emscripten_src_files });
+
+            const cache_include = std.fs.path.join(b.allocator, &.{ b.sysroot.?, "include" }) catch @panic("Out of memory");
+            defer b.allocator.free(cache_include);
+
+            var dir = std.fs.openDirAbsolute(cache_include, std.fs.Dir.OpenDirOptions{ .access_sub_paths = true, .no_follow = true }) catch @panic("No emscripten cache. Generate it!");
+            dir.close();
+
+            lib.addIncludePath(b.path(cache_include));
         },
-        else => { },
+        else => {},
     }
 
     const use_pregenerated_config = switch (t.os.tag) {
@@ -133,7 +141,7 @@ pub fn build(b: *std.Build) void {
         const revision_header = b.addConfigHeader(.{
             .style = .{ .cmake = b.path("include/SDL_revision.h.cmake") },
             .include_path = "SDL_revision.h",
-        }, .{ });
+        }, .{});
         lib.addConfigHeader(revision_header);
         lib.installConfigHeader(revision_header);
     }
@@ -816,7 +824,7 @@ const SdlOption = struct {
     // C Macros are similar to SDL configs but aren't present in the public
     // headers and only affect the SDL implementation.  None of the values
     // should occur in the include directory.
-    c_macros: []const []const u8 = &.{ },
+    c_macros: []const []const u8 = &.{},
     src_files: []const []const u8,
     system_libs: []const []const u8,
 };
@@ -824,8 +832,8 @@ const render_driver_sw = SdlOption{
     .name = "render_driver_software",
     .desc = "enable the software render driver",
     .default = true,
-    .sdl_configs = &.{ },
-    .c_macros = &.{ "SDL_VIDEO_RENDER_SW" },
+    .sdl_configs = &.{},
+    .c_macros = &.{"SDL_VIDEO_RENDER_SW"},
     .src_files = &.{
         "src/render/software/SDL_blendfillrect.c",
         "src/render/software/SDL_blendline.c",
@@ -836,7 +844,7 @@ const render_driver_sw = SdlOption{
         "src/render/software/SDL_rotate.c",
         "src/render/software/SDL_triangle.c",
     },
-    .system_libs = &.{ },
+    .system_libs = &.{},
 };
 const linux_options = [_]SdlOption{
     render_driver_sw,
@@ -848,56 +856,56 @@ const linux_options = [_]SdlOption{
             "SDL_VIDEO_DRIVER_X11",
             "SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS",
         },
-        .src_files = &.{ },
+        .src_files = &.{},
         .system_libs = &.{ "x11", "xext" },
     },
     .{
         .name = "render_driver_ogl",
         .desc = "enable the opengl render driver",
         .default = true,
-        .sdl_configs = &.{ "SDL_VIDEO_RENDER_OGL" },
+        .sdl_configs = &.{"SDL_VIDEO_RENDER_OGL"},
         .src_files = &.{
             "src/render/opengl/SDL_render_gl.c",
             "src/render/opengl/SDL_shaders_gl.c",
         },
-        .system_libs = &.{ },
+        .system_libs = &.{},
     },
     .{
         .name = "render_driver_ogl_es",
         .desc = "enable the opengl es render driver",
         .default = true,
-        .sdl_configs = &.{ "SDL_VIDEO_RENDER_OGL_ES" },
+        .sdl_configs = &.{"SDL_VIDEO_RENDER_OGL_ES"},
         .src_files = &.{
             "src/render/opengles/SDL_render_gles.c",
         },
-        .system_libs = &.{ },
+        .system_libs = &.{},
     },
     .{
         .name = "render_driver_ogl_es2",
         .desc = "enable the opengl es2 render driver",
         .default = true,
-        .sdl_configs = &.{ "SDL_VIDEO_RENDER_OGL_ES2" },
+        .sdl_configs = &.{"SDL_VIDEO_RENDER_OGL_ES2"},
         .src_files = &.{
             "src/render/opengles2/SDL_render_gles2.c",
             "src/render/opengles2/SDL_shaders_gles2.c",
         },
-        .system_libs = &.{ },
+        .system_libs = &.{},
     },
     .{
         .name = "audio_driver_pulse",
         .desc = "enable the pulse audio driver",
         .default = true,
-        .sdl_configs = &.{ "SDL_AUDIO_DRIVER_PULSEAUDIO" },
-        .src_files = &.{ "src/audio/pulseaudio/SDL_pulseaudio.c" },
-        .system_libs = &.{ "pulse" },
+        .sdl_configs = &.{"SDL_AUDIO_DRIVER_PULSEAUDIO"},
+        .src_files = &.{"src/audio/pulseaudio/SDL_pulseaudio.c"},
+        .system_libs = &.{"pulse"},
     },
     .{
         .name = "audio_driver_alsa",
         .desc = "enable the alsa audio driver",
         .default = false,
-        .sdl_configs = &.{ "SDL_AUDIO_DRIVER_ALSA" },
-        .src_files = &.{ "src/audio/alsa/SDL_alsa_audio.c" },
-        .system_libs = &.{ "alsa" },
+        .sdl_configs = &.{"SDL_AUDIO_DRIVER_ALSA"},
+        .src_files = &.{"src/audio/alsa/SDL_alsa_audio.c"},
+        .system_libs = &.{"alsa"},
     },
 };
 
