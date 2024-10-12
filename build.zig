@@ -52,17 +52,6 @@ pub fn build(b: *std.Build) void {
             lib.defineCMacro("__EMSCRIPTEN_PTHREADS__ ", "1");
             lib.defineCMacro("USE_SDL", "2");
             lib.addCSourceFiles(.{ .files = &emscripten_src_files });
-            if (b.sysroot == null) {
-                @panic("Pass '--sysroot \"$EMSDK/upstream/emscripten\"'");
-            }
-
-            const cache_include = std.fs.path.join(b.allocator, &.{ b.sysroot.?, "cache", "sysroot", "include" }) catch @panic("Out of memory");
-            defer b.allocator.free(cache_include);
-
-            var dir = std.fs.openDirAbsolute(cache_include, std.fs.Dir.OpenDirOptions{ .access_sub_paths = true, .no_follow = true }) catch @panic("No emscripten cache. Generate it!");
-            dir.close();
-
-            lib.addIncludePath(b.path(cache_include));
         },
         else => { },
     }
