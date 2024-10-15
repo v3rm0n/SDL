@@ -69,7 +69,7 @@ pub fn build(b: *std.Build) void {
             var dir = std.fs.openDirAbsolute(cache_include, std.fs.Dir.OpenDirOptions{ .access_sub_paths = true, .no_follow = true }) catch @panic("No emscripten cache. Generate it!");
             dir.close();
 
-            lib.addIncludePath(b.path(cache_include));
+            lib.addIncludePath(.{ .cwd_relative = cache_include });
         },
         else => {
             switch (target.result.abi) {
