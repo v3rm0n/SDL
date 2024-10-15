@@ -62,7 +62,7 @@ pub fn build(b: *std.Build) void {
                 @panic("Pass '--sysroot \"$EMSDK/upstream/emscripten\"'");
             }
 
-            const cache_include = std.fs.path.join(b.allocator, &.{ b.sysroot.?, "cache", "sysroot", "include" }) catch @panic("Out of memory");
+            const cache_include = std.fs.path.join(b.allocator, &.{ b.sysroot.?, "include" }) catch @panic("Out of memory");
             defer b.allocator.free(cache_include);
 
             var dir = std.fs.openDirAbsolute(cache_include, std.fs.Dir.OpenDirOptions{ .access_sub_paths = true, .no_follow = true }) catch @panic("No emscripten cache. Generate it!");
