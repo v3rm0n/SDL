@@ -219,8 +219,6 @@ pub fn build(b: *std.Build) void {
         hidapi_lib.linkLibCpp();
         lib.linkLibrary(hidapi_lib);
         b.installArtifact(hidapi_lib);
-    } else {
-        lib.root_module.addCMacro("SDL_HIDAPI_DISABLED", "");
     }
 
     lib.installHeadersDirectory(b.path("include"), "SDL2", .{});
