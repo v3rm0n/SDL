@@ -382,7 +382,7 @@ const android_src_files = [_][]const u8{
     "src/thread/pthread/SDL_syssem.c",
     "src/thread/pthread/SDL_systhread.c",
     "src/thread/pthread/SDL_systls.c",
-    "src/render/opengles/SDL_render_gles.c", // use of undeclared identifier: glCheckFramebufferStatusOES
+    "src/render/opengles/SDL_render_gles.c",
     "src/render/opengles2/SDL_render_gles2.c",
     "src/render/opengles2/SDL_shaders_gles2.c",
 
